@@ -23,7 +23,7 @@ from schemas.auth import SignUp, NewPassword, SignIn, EditData, SimpleResponse, 
     Authorise, ResetPassword
 
 app = FastAPI(
-    title="Hub",
+    title="Realty Agency",
 )
 
 app.add_middleware(
