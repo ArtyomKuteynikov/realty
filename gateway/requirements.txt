@@ -1,0 +1,17 @@
+asyncpg
+fastapi
+psycopg2
+fastapi-cache2
+redis
+requests
+SQLAlchemy
+uvicorn
+git+https://github.com/elnurhasan/fastapi-jwt-auth.git
+fastapi-mail
+pydantic
+passlib
+itsdangerous
+fastapi-pagination
+aiosqlite==0.19.0
+sqlmodel
+bcrypt
