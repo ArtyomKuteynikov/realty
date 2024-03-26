@@ -61,6 +61,7 @@ class SimpleResponse(BaseModel):
 
 class TokenResponse(BaseModel):
     access_token: str
+    refresh_token: str
     customer_id: int
 
 

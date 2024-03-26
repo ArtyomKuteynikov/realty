@@ -167,8 +167,23 @@ async def signin(data: SignIn, Authorize: AuthJWT = Depends(), session: AsyncSes
         raise HTTPException(
             status_code=401, detail="Incorrect username or password")
     access_token = Authorize.create_access_token(subject=user.id)
+    refresh_token = Authorize.create_refresh_token(subject=user.id)
     return {
         'access_token': access_token,
+        'refresh_token': refresh_token,
+        'customer_id': user.id
+    }
+
+
+@app.post('/v1/refresh-token', tags=['Account'], response_model=TokenResponse)
+async def refresh(Authorize: AuthJWT = Depends()):
+    Authorize.jwt_refresh_token_required()
+    current_user = Authorize.get_jwt_subject()
+    access_token = Authorize.create_access_token(subject=current_user)
+    refresh_token = Authorize.create_refresh_token(subject=current_user)
+    return {
+        'access_token': access_token,
+        'refresh_token': refresh_token,
         'customer_id': user.id
     }
 
