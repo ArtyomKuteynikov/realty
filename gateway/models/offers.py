@@ -31,8 +31,6 @@ class Offer(Base):
     floor: int = Column(Integer, nullable=False)
     renovation: str = Column(String(64), nullable=False)
 
-    appliances = relationship("Appliance", secondary="appliances_map")
-
 
 class Appliance(Base):
     __tablename__ = "appliance"

@@ -134,8 +134,11 @@ async def offer(offer_id: int, Authorize: AuthJWT = Depends(), session: AsyncSes
     offer = await session.get(Offer, offer_id)
     if not offer:
         raise HTTPException(status_code=404, detail="Offer not found")
-    offer.appliances = [await session.get(Appliance, i[0].appliance_id) for i in
-                        (await session.execute(select(AppliancesMap).where(AppliancesMap.offer_id == offer.id))).all()]
+    offer.appliances = [
+        await session.get(Appliance, i[0].appliance_id)
+        for i in
+        (await session.execute(select(AppliancesMap).where(AppliancesMap.offer_id == offer_row[0].id))).all()
+    ]
     offer.owner = await session.get(User, offer.user_id)
     if offer.img1:
         offer.img1 = await image_to_base64(offer.img1)
@@ -278,7 +281,8 @@ async def my_offers(Authorize: AuthJWT = Depends(), session: AsyncSession = Depe
 
 
 @router.get("/map", tags=['Offer'], response_model=OfferSchema)
-async def my_offers(map: Map, filters: Filters, Authorize: AuthJWT = Depends(), session: AsyncSession = Depends(get_db)):
+async def my_offers(map: Map, filters: Filters, Authorize: AuthJWT = Depends(),
+                    session: AsyncSession = Depends(get_db)):
     Authorize.jwt_required()
     filter_conditions = []
     if filters.type:
