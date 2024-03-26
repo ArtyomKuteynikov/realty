@@ -2,6 +2,7 @@ import os
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from dadata import Dadata
 
 import requests
 from dotenv import load_dotenv
@@ -64,3 +65,21 @@ def send_tg(telegram_id, message):
     except requests.exceptions.RequestException as e:
         print(f"Ошибка при отправке сообщения в Telegram: {e}")
         return 0
+
+
+def get_address_data(address):
+    dadata = Dadata(DADATA_KEY)
+    try:
+        data = dadata.suggest("address", address)
+        return {
+            'lat': float(data[0]['data']['geo_lat']),
+            'lon': float(data[0]['data']['geo_lon']),
+            'country': data[0]['data']['country'],
+        }
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return {
+            'lat': None,
+            'lon': None,
+            'country': None,
+        }

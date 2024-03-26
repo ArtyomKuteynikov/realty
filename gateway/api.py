@@ -18,7 +18,7 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from config.database import get_db, init_db
 from config.main import Settings, send_email, send_tg
 from models.auth import User
-# from routes.cities import router as city_router
+from routes.offers import router as offers_router
 from schemas.auth import SignUp, NewPassword, SignIn, EditData, SimpleResponse, TokenResponse, ProfileResponse, \
     Authorise, ResetPassword
 
@@ -36,6 +36,8 @@ app.add_middleware(
 )
 
 add_pagination(app)
+
+app.include_router(offers_router)
 
 
 @AuthJWT.load_config

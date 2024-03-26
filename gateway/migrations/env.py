@@ -9,6 +9,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from models.auth import User, Base
+from models.offers import Offer, Appliance, AppliancesMap
 from config.main import DB_HOST, DB_PORT, DB_USER, DB_NAME, DB_PASS
 
 from alembic import context
