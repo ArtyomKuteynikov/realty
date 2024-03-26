@@ -154,8 +154,10 @@ async def auth(data: Authorise, Authorize: AuthJWT = Depends(), session: AsyncSe
         raise HTTPException(
             status_code=401, detail="Incorrect code")
     access_token = Authorize.create_access_token(subject=user.id)
+    refresh_token = Authorize.create_refresh_token(subject=user.id)
     return {
         'access_token': access_token,
+        'refresh_token': refresh_token,
         'customer_id': user.id
     }
 
