@@ -12,7 +12,6 @@ class Roles(str, Enum):
 
 class Authorise(BaseModel):
     tg_id: str
-    code: int
 
 
 class SignIn(BaseModel):

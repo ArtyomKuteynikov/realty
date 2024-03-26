@@ -76,7 +76,7 @@ async def authenticate_user(username: str, password: str, session: AsyncSession)
     return None
 
 
-async def auth_user(tg_id: str, code: int, session: AsyncSession):
+async def auth_user(tg_id: str, session: AsyncSession):
     result = await session.execute(
         select(User).where(
             (User.tg_id == tg_id)
@@ -84,8 +84,7 @@ async def auth_user(tg_id: str, code: int, session: AsyncSession):
     )
     user = result.first()
     global redis_pool
-    print(type(code), type(await redis_pool.get(f'otp:{tg_id}')))
-    if user and str(code) == str(await redis_pool.get(f'otp:{tg_id}')):
+    if user:
         return user[0]
     return None
 
@@ -149,7 +148,7 @@ async def send_otp(tg_id: str, session: AsyncSession = Depends(get_db)):
 
 @app.post("/v1/auth", tags=['Account'], response_model=TokenResponse)
 async def auth(data: Authorise, Authorize: AuthJWT = Depends(), session: AsyncSession = Depends(get_db)):
-    user = await auth_user(data.tg_id, data.code, session)
+    user = await auth_user(data.tg_id, session)
     if user is None:
         raise HTTPException(
             status_code=401, detail="Incorrect code")
