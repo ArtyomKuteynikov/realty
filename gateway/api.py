@@ -1,4 +1,5 @@
 import datetime
+import json
 import random
 import string
 from typing import List
@@ -21,6 +22,7 @@ from models.auth import User
 from routes.offers import router as offers_router
 from schemas.auth import SignUp, NewPassword, SignIn, EditData, SimpleResponse, TokenResponse, ProfileResponse, \
     Authorise, ResetPassword
+from fastapi import Response, Cookie
 
 app = FastAPI(
     title="Realty Agency",
@@ -154,11 +156,19 @@ async def auth(data: Authorise, Authorize: AuthJWT = Depends(), session: AsyncSe
             status_code=401, detail="Incorrect code")
     access_token = Authorize.create_access_token(subject=user.id)
     refresh_token = Authorize.create_refresh_token(subject=user.id)
-    return {
+    response_dict = {
         'access_token': access_token,
         'refresh_token': refresh_token,
         'customer_id': user.id
     }
+    response_json = json.dumps(response_dict)
+    response = Response(content=response_json)
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True  # Set httponly to True to make it accessible only through HTTP
+    )
+    return response
 
 
 @app.post("/v1/signin", tags=['Account'], response_model=TokenResponse)
@@ -176,17 +186,28 @@ async def signin(data: SignIn, Authorize: AuthJWT = Depends(), session: AsyncSes
     }
 
 
+@app.get('/v1/refresh', tags=['Account'])
+async def get_refresh(request: Request, Authorize: AuthJWT = Depends()):
+    refresh_token = request.cookies.get("refresh_token")
+    return {
+        'refresh_token': refresh_token
+    }
+
+
 @app.post('/v1/refresh-token', tags=['Account'], response_model=TokenResponse)
 async def refresh(Authorize: AuthJWT = Depends()):
     Authorize.jwt_refresh_token_required()
     current_user = Authorize.get_jwt_subject()
     access_token = Authorize.create_access_token(subject=current_user)
     refresh_token = Authorize.create_refresh_token(subject=current_user)
-    return {
-        'access_token': access_token,
-        'refresh_token': refresh_token,
-        'customer_id': user.id
-    }
+    return {'access_token': access_token, 'refresh_token': refresh_token, 'customer_id': current_user}
+
+
+@app.delete("/v1/logout", tags=['Account'])
+async def logout():
+    response = Response(content="Logged out successfully")
+    response.delete_cookie(key="refresh_token")
+    return response
 
 
 @app.post('/v1/signup', tags=['Account'], response_model=SimpleResponse)
